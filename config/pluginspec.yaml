@@ -1,0 +1,70 @@
+# This is default sample specification
+# Feel free to change it
+# Call ecpdf showdoc pluginspec to see the list of available fields and their description
+pluginName: EC-NewJenkins
+description: No description
+version: 1.0.0
+author: No Name
+authorUrl: No support URL
+category: Utilities
+
+# This is a declaration for the plugin configuration
+configuration:
+  # Shell to be used for checking connection
+  shell: ec-perl
+  parameters:
+   - name: config
+     type: entry
+     label: Configuration Name
+     required: true
+     documentation: The name for the created configuration
+   - name: desc
+     type: entry
+     label: Description
+     required: false
+     documentation: Description for the configuration
+   - name: endpoint
+     label: Endpoint
+     type: entry
+     required: true
+     documentation: Third-party endpoint to connect to.
+   - name: credential
+     type: credential
+     label: Credential
+     userNameLabel: Username
+     required: true
+     passwordLabel: Password
+   - name: checkConnection
+     label: Check Connection?
+     type: checkbox
+     checkedValue: true
+     uncheckedValue: false
+     initiallyChecked: 1
+   - name: debugLevel
+     # This parameter name "debugLevel" is supported by ECPDF Logger out of the box
+     label: Debug Level
+     type: select
+     required: 0
+     value: 0
+     options:
+       - name: Info
+         value: 0
+       - name: Debug
+         value: 1
+       - name: Trace
+         value: 2
+
+procedures:
+- name: CollectReportingData
+  description: COLLECT REPORTING DATA
+  hasConfig: true # configuration field will be generated automatically
+  parameters:
+  - name: applicationPath
+    documentation: Path to the application
+    type: entry
+    required: true
+    label: Application Path
+  # outputParameters:
+  #   deployed: JSON representation of the deployed application
+  # Steps are not defined so we assume that this is one-step procedure with a single step named Deploy
+  shell: ec-perl

@@ -1,0 +1,64 @@
+<!--
+    This form is generated automatically from the parameters pluginspec.
+    Please not not edit this file manually as it will be regenerated.
+-->
+
+<editor>
+  <formElement>
+    <type>entry</type>
+    <property>config</property>
+    <required>1</required>
+    <documentation>The name for the created configuration</documentation>
+    <label>Configuration Name:</label>
+  </formElement>
+  <formElement>
+    <type>entry</type>
+    <property>desc</property>
+    <required>0</required>
+    <documentation>Description for the configuration</documentation>
+    <label>Description:</label>
+  </formElement>
+  <formElement>
+    <type>entry</type>
+    <property>endpoint</property>
+    <required>1</required>
+    <documentation>Third-party endpoint to connect to.</documentation>
+    <label>Endpoint:</label>
+  </formElement>
+  <formElement>
+    <type>credential</type>
+    <property>credential</property>
+    <required>1</required>
+    <label>Credential:</label>
+    <attachedAsParameterToStep>createConfiguration</attachedAsParameterToStep>
+    <passwordLabel>Password</passwordLabel>
+    <userNameLabel>Username</userNameLabel>
+  </formElement>
+  <formElement>
+    <type>checkbox</type>
+    <property>checkConnection</property>
+    <label>Check Connection?:</label>
+    <checkedValue>true</checkedValue>
+    <initiallyChecked>1</initiallyChecked>
+    <uncheckedValue>false</uncheckedValue>
+  </formElement>
+  <formElement>
+    <type>select</type>
+    <property>debugLevel</property>
+    <required>0</required>
+    <label>Debug Level:</label>
+    <option>
+      <name>Info</name>
+      <value>0</value>
+    </option>
+    <option>
+      <name>Debug</name>
+      <value>1</value>
+    </option>
+    <option>
+      <name>Trace</name>
+      <value>2</value>
+    </option>
+    <value>0</value>
+  </formElement>
+</editor>

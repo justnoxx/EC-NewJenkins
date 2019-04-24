@@ -1,0 +1,101 @@
+<editor>
+    <formElement>
+        <label>Configuration name</label>
+        <property>config</property>
+        <propertyReference>/plugins/@PLUGIN_NAME@/project/Jenkins_cfgs</propertyReference>
+        <value/>
+        <documentation>Name of the configuration that contains the Jenkins information.</documentation>
+        <!-- Improvements for CEV-18687 -->
+        <configuration>1</configuration>
+        <!-- End of improvements for CEV-18687 -->
+        <required>1</required>
+        <type>entry</type>
+    </formElement>
+    <formElement>
+        <type>checkbox</type>
+        <label>Preview mode:</label>
+        <property>previewMode</property>
+        <required>0</required>
+        <documentation>
+            Special CollectReportingData procedure mode. This mode is designed to help customer with report configuration.
+            If this mode is enabled, no reports will be sent and no metadata will be set.
+            High verbosity will be enabled instead. In that mode user can configure mappings, transformation before set before enabling automatic reporting.
+            In this mode each object, retrieved from Jenkins will be displayed, transformation, mapping and final payload  will be displayed also.
+        </documentation>
+        <checkedValue>1</checkedValue>
+        <uncheckedValue>0</uncheckedValue>
+    </formElement>
+    <formElement>
+        <label>Job name:</label>
+        <property>jobName</property>
+        <value></value>
+        <documentation>Name of the Jenkins job to build report.</documentation>
+        <required>1</required>
+        <type>entry</type>
+    </formElement>
+    <formElement>
+        <label>Transform script:</label>
+        <property>transformScript</property>
+        <value>sub transform {
+    my ($context, $payload) = @_;
+    # $payload->{build}->{buildCustomField} = 'build custom data';
+    # $payload->{quality}->{qualityCustomField} = 'quality custom data';
+    return $payload;
+}
+        </value>
+        <documentation>
+            Allows user to provide perl script for payload customization.
+            This method will be invoked by plugin with 2 parameters. 1st parameter is context object, 2nd is payload object. Since @PLUGIN_NAME@ sends two types of reports,
+            payload will be a hash reference with build and payload sections.
+            Method should be named "transform", and should return payload object. In this example myTimestamp field will be added to build and quality payload objects:
+            <pre>
+sub transform {
+    my ($context, $record) = @_;
+    $record->{buildNumber} = $record->{number};
+    $record->{projectName} = 'Enter project name here';
+    $record->{releaseName} = 'Enter release name here';
+    $record->{releaseProjectName} = 'Enter release project name here';
+    return $record;
+}
+            </pre>
+        </documentation>
+        <required>0</required>
+        <type>textarea</type>
+    </formElement>
+    <formElement>
+        <label>Metadata property path:</label>
+        <property>metadataPropertyPath</property>
+        <value />
+        <documentation>Property sheet where run metadata will be stored. Optional field. If omited, /mySchedule/EC-Jenkins-%JobName%-%Report Object Type% will be used for schedule contest. For all other contexts root is /myProject.</documentation>
+        <required>0</required>
+        <type>entry</type>
+    </formElement>
+    <formElement>
+        <label>Results count on initial retrieval:</label>
+        <property>initialRecordsCount</property>
+        <documentation>
+            Count of old builds to retrieve from server. If omited it will be set to 10.
+        </documentation>
+        <required>0</required>
+        <type>entry</type>
+    </formElement>
+    <formElement>
+        <label>Base URL for drill-down:</label>
+        <property>baseDrilldownUrl</property>
+        <documentation>
+            Base URL for the Jenkins. If empty it will be set to %url_from_configuration%/job/%Job name%.
+        </documentation>
+        <required>0</required>
+        <type>entry</type>
+    </formElement>
+    <formElement>
+        <type>checkbox</type>
+        <label>Debug:</label>
+        <property>debug</property>
+        <checkedValue>1</checkedValue>
+        <required>0</required>
+        <uncheckedValue>0</uncheckedValue>
+        <documentation>If checked, the debug level will be set to "Debug".</documentation>
+        <value>0</value>
+    </formElement>
+</editor>

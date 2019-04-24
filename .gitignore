@@ -1,0 +1,15 @@
+.gradle
+build
+logs
+.idea
+/bin/
+.classpath
+.*project
+.settings
+*.iml
+*~
+ecplugin.properties
+.DS_Store
+/.vscode/
+Thumbs.db
+specs/spec-report/
