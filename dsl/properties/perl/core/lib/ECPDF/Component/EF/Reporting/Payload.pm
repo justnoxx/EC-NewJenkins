@@ -1,3 +1,22 @@
+=head1 NAME
+
+ECPDF::Component::EF::Reporting::Payload
+
+=head1 AUTHOR
+
+Electric Cloud
+
+=head1 DESCRIPTION
+
+A payload object.
+
+=head1 METHODS
+
+TBD;
+
+=cut
+
+
 package ECPDF::Component::EF::Reporting::Payload;
 use base qw/ECPDF::BaseClass2/;
 __PACKAGE__->defineClass({
@@ -52,7 +71,26 @@ sub encode {
     return $encodedPayload;
 }
 
+sub sendAllReportsToEF {
+    my ($self) = @_;
 
+    my $result = $self->sendReportToEF();
+
+    my $dependentPayloads = $self->getDependentPayloads();
+
+    unless (@$dependentPayloads) {
+        return $result;
+    }
+
+    my $result2 = [];
+    for my $dp (@$dependentPayloads) {
+        my $tempResult = $dp->sendReportToEF();
+        push @$result2, $tempResult;
+    }
+
+    # TODO: add error handling here.
+    return $result2;
+}
 sub sendReportToEF {
     my ($self) = @_;
 
@@ -87,6 +125,13 @@ sub sendReportToEF {
         }
     }
     return $retval;
+}
+
+# TODO: Implement addition of dependent payload.
+sub addDependentPayload {
+    my ($self, $reportObjectType) = @_;
+
+    return $self;
 }
 
 1;

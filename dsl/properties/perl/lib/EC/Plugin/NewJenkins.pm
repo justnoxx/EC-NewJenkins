@@ -25,11 +25,11 @@ sub pluginInfo {
 # Auto-generated method for the procedure CollectReportingData/CollectReportingData
 # Add your code into this method and it will be called when step runs
 sub collectReportingData {
-    my ($pluginObject) = @_;
-    my $context = $pluginObject->newContext();
+    my ($pluginObject, $params, $stepResult) = @_;
+    my $context = $pluginObject->getContext();
 
     $ECPDF::Log::LOG_LEVEL = 2;
-    my $params = $context->getRuntimeParameters();
+    # my $params = $context->getRuntimeParameters();
 
     my $reporting = ECPDF::ComponentManager->loadComponent('EC::Plugin::NewJenkins::Reporting', {
         reportObjectTypes => ['build'],
@@ -43,6 +43,7 @@ sub collectReportingData {
     #     $stepResult->setJobStepSummary("$row payloads sent: 100");
     # }
     # $stepResult->apply();
+    # $stepResult->setJobStepSummary("Testing auto-apply");
     $reporting->CollectReportingData();
 }
 
@@ -57,7 +58,7 @@ sub collectReportingData {
 sub doRestRequest {
     my ($self, $method, $url, $params) = @_;
 
-    my $context = $self->newContext();
+    my $context = $self->getContext();
     my $rp = $context->getRuntimeParameters();
     print "RP:", Dumper $rp;
     my $rest = $context->newRESTClient();

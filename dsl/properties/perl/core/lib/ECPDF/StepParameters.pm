@@ -212,7 +212,7 @@ sub getRequiredParameter {
 
     my $value = $self->getParameter($parameterName);
     if (!defined $value) {
-        bailOut("Required parameter $parameterName does noet exist");
+        bailOut("Required parameter $parameterName does not exist");
     }
 
     return $value;

@@ -17,7 +17,7 @@ sub compareMetadata {
 sub initialGetRecords {
     my ($self, $pluginObject, $limit) = @_;
 
-    my $runtimeParameters = $pluginObject->newContext()->getRuntimeParameters();
+    my $runtimeParameters = $pluginObject->getContext()->getRuntimeParameters();
     logDebug("Initial Get Records runtime parameters:", Dumper $runtimeParameters);
     my $lastNumber = $pluginObject->getLastBuildNumber($runtimeParameters->{jobName});
     logDebug("Initial Get Records last build number: $lastNumber");
@@ -29,7 +29,7 @@ sub initialGetRecords {
 sub getRecordsAfter {
     my ($self, $pluginObject, $metadata) = @_;
 
-    my $runtimeParameters = $pluginObject->newContext()->getRuntimeParameters();
+    my $runtimeParameters = $pluginObject->getContext()->getRuntimeParameters();
     my $lastNumber = $pluginObject->getLastBuildNumber($runtimeParameters->{jobName});
     my $metadataValues = $metadata->getValue();
     logDebug("Got metadata value in getRecordsAfter:", Dumper $metadataValues);
@@ -41,7 +41,7 @@ sub getRecordsAfter {
 sub getLastRecord {
     my ($self, $pluginObject) = @_;
 
-    my $runtimeParameters = $pluginObject->newContext()->getRuntimeParameters();
+    my $runtimeParameters = $pluginObject->getContext()->getRuntimeParameters();
     logDebug("Last record runtime params:", Dumper $runtimeParameters);
     my $lastNumber = $pluginObject->getLastBuildNumber($runtimeParameters->{jobName});
     my $jobDetails = $pluginObject->getJobDetails($runtimeParameters->{jobName}, $lastNumber);
@@ -55,11 +55,13 @@ sub buildDataset {
     my $dataset = $self->newDataset({
         reportObjectTypes => ['build'],
     });
-    my $runtimeParameters = $pluginObject->newContext()->getRuntimeParameters();
+    my $runtimeParameters = $pluginObject->getContext()->getRuntimeParameters();
+    @$records = reverse @$records;
     for my $row (@$records) {
         my $data = $dataset->newData({
             reportObjectType => 'build',
         });
+        print "Retrieved data ref: $data\n";
         $row->{sourceUrl} = $row->{url};
         $row->{pluginConfiguration} = $runtimeParameters->{config};
         $row->{startTime} = $pluginObject->getDateFromJenkinsTimestamp($row->{timestamp});
@@ -73,10 +75,11 @@ sub buildDataset {
             if ($k eq 'timestamp') {
                 $row->{$k} = $pluginObject->getDateFromJenkinsTimestamp($row->{$k});
             }
-            $data->{values}->{$k} = $row->{$k};
+            $data->addValue($k => $row->{$k});
+            # $data->{values}->{$k} = $row->{$k};
         }
-        my $dataRef = $dataset->getData();
-        unshift @$dataRef, $data;
+        # my $dataRef = $dataset->getData();
+        # unshift @$dataRef, $data;
     }
     return $dataset;
 }
@@ -88,11 +91,11 @@ sub buildPayloadset {
         reportObjectTypes => ['build'],
     });
 
-    my $payloads = $payloadSet->getPayloads();
+    # my $payloads = $payloadSet->getPayloads();
     my $data = $dataset->getData();
     for my $row (@$data) {
         my $values = $row->getValues();
-        push @$payloads, $payloadSet->newPayload({
+        my $pl = $payloadSet->newPayload({
             values => $values,
             reportObjectType => 'build'
         });

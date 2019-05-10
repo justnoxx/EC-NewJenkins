@@ -25,7 +25,7 @@ some components may be applied automatically to ECPDF::Client::REST object, like
         my ($pluginObject) = @_;
 
         # retrieving context object
-        my $context = $pluginObject->newContext();
+        my $context = $pluginObject->getContext();
         # creating new ECPDF::Client::REST object
         my $rest = $context->newRESTClient();
         # creatung new HTTP::Request object using ECPDF APIs

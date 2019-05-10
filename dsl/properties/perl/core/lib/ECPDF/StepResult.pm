@@ -20,7 +20,8 @@ use base qw/ECPDF::BaseClass2/;
 __PACKAGE__->defineClass({
     context => 'ECPDF::Context',
     actions => '*',
-    cache => '*'
+    cache => '*',
+    isApplied => '*'
 });
 
 use strict;
@@ -371,6 +372,7 @@ Applies scheduled changes without schedule cleanup in queue order: first schedul
 sub apply {
     my ($self) = @_;
 
+    $self->setIsApplied(1);
     my $actions = $self->getActions();
     for my $action (@$actions) {
         if (!ref $action) {
@@ -496,5 +498,16 @@ sub applyAndFlush {
     return $self->flush();
 }
 
+
+sub applyIfNotApplied {
+    my ($self) = @_;
+
+    my $actions = $self->getActions();
+    if (@$actions and !$self->getIsApplied()) {
+        logDebug("Executing auto-apply for ECPDF::StepResult object.");
+        return $self->apply();
+    }
+    return $self;
+}
 1;
 

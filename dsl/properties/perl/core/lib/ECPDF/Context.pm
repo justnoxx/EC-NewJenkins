@@ -42,7 +42,7 @@ use ECPDF::Credential;
 use ECPDF::StepResult;
 use ECPDF::Log;
 use ECPDF::Client::REST;
-use ECPDF::Helpers qw/bailOut/;
+use ECPDF::Helpers qw/bailOut trim/;
 use Carp;
 use Data::Dumper;
 use ElectricCommander;
@@ -555,10 +555,25 @@ sub getCurrentScheduleName {
     return $scheduleName;
 }
 
-# sub getCurrentStepParameters {
-#     # return $self->get_step_parameters();
-# }
+# private
+sub isParameterRequired {
+    my ($self, $param) = @_;
 
+    if (!$param) {
+        bailOut("Parameter name is mandatory for isParameterRequired method");
+    }
+    my $procedureName = $self->getProcedureName();
+    my $projectName   = $self->getPluginObject()->getPluginProjectName();
+    my $ec            = $self->getEc();
+    my $formalParameter = $ec->getFormalParameter({
+        projectName         => $projectName,
+        procedureName       => $procedureName,
+        formalParameterName => $param
+    });
+
+    my $required = $formalParameter->findvalue('//required')->string_value();
+    return $required;
+}
 # private
 sub readActualParameter {
     my ($self, $param) = @_;
@@ -611,7 +626,15 @@ sub readActualParameter {
         my $xpath = eval { $sub->() };
 
         if (!$@ && $xpath && $xpath->exists('//actualParameterName')) {
-            return $xpath->findvalue('//value')->string_value;
+            my $val = $xpath->findvalue('//value')->string_value;
+
+            if ($self->isParameterRequired($param)) {
+                if (!defined $val || $val eq '') {
+                    my $procedureName = $self->getProcedureName();
+                    bailOut "Parameter '$param' of procedure '$procedureName' is marked as required, but it does not have a value. Aborting with fatal error.";
+                }
+            }
+            return $val;
         }
 
     }
@@ -645,7 +668,6 @@ sub getCurrentStepParametersAsHash {
     my $procedure_name = $self->getEc()->getProperty('/myProcedure/name')->findvalue('//value')->string_value;
     my $po = $self->getPluginObject();
     my $xpath = $self->getEc()->getFormalParameters({
-        # projectName => '@PLUGIN_NAME@',
         projectName => sprintf('%s-%s', $po->getPluginName(), $po->getPluginVersion()),
         procedureName => $procedure_name
     });
@@ -655,7 +677,7 @@ sub getCurrentStepParametersAsHash {
 
         my $name_in_list = $name;
         # TODO: Add credentials handling logic. Now we're nexting.
-        if ($param->findvalue('type')->string_value eq 'credential') {
+        if ($param->findvalue('type')->string_value() eq 'credential') {
             my $cred = $self->getEc()->getFullCredential($value);
             my $username = $cred->findvalue('//userName')->string_value;
             my $password = $cred->findvalue('//password')->string_value;
@@ -663,13 +685,11 @@ sub getCurrentStepParametersAsHash {
             $params->{$name_in_list}->{password} = $password;
         }
         else {
-            # TODO: Add trim here
+            $value = trim($value);
             if (!defined $value || $value eq '') {
                 next;
             }
             $params->{$name_in_list} = $value;
-            # $self->out(1, qq{Got parameter "$name" with value "$value"\n});
-            # logInfo(qq{Got parameter "$name" with value "$value"\n});
         }
     }
     return $params;

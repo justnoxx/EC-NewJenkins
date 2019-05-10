@@ -22,7 +22,7 @@ sub trim {
         $_;
     } @params;
 
-    return @params;
+    return wantarray() ? @params : join '', @params;
 }
 
 sub isWin {

@@ -1,3 +1,25 @@
+=head1 NAME
+
+ECPDF::Component::EF::Reporting::Payloadset
+
+=head1 AUTHOR
+
+Electric Cloud
+
+=head1 DESCRIPTION
+
+A payloadset object.
+
+=head1 METHODS
+
+=head2 getReportObhectTypes()
+
+=head2 getPayloads()
+
+=head2 newPayload()
+
+=cut
+
 package ECPDF::Component::EF::Reporting::Payloadset;
 use base qw/ECPDF::BaseClass2/;
 
@@ -17,9 +39,16 @@ use ECPDF::Log;
 
 
 sub newPayload {
-    my ($self, @params) = @_;
+    my ($self, $params) = @_;
 
-    return ECPDF::Component::EF::Reporting::Payload->new(@params);
+    if (!$params->{dependentPayloads}) {
+        $params->{dependentPayloads} = [];
+    }
+    my $payload = ECPDF::Component::EF::Reporting::Payload->new($params);
+
+    my $payloads = $self->getPayloads();
+    push @$payloads, $payload;
+    return $payload;
 }
 
 sub report {
@@ -42,16 +71,5 @@ sub getLastPayload {
     return $payloads->[-1];
 }
 
-# sub validate {
-#     my ($self) = @_;
-
-#     my $payloads = $self->getPayloads();
-
-#     for my $p (@$payloads) {
-#         my $values = $p->getValues();
-
-#         for my $k (keys %$values) {};
-#     }
-# }
 
 1;

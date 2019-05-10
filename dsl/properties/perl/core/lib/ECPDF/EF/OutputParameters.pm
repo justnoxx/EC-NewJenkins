@@ -1,10 +1,9 @@
 package ECPDF::EF::OutputParameters;
 use base qw/ECPDF::BaseClass2/;
-sub classDefinition {
-    return {
-        ec => ElectricCommander
-    };
-}
+
+__PACKAGE__->defineClass({
+    ec => ElectricCommander
+});
 
 use strict;
 use warnings;

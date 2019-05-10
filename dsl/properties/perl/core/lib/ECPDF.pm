@@ -98,7 +98,8 @@ __PACKAGE__->defineClass({
     configFields    => '*',
     configLocations => '*',
     contextFactory  => '*',
-    pluginValues    => '*'
+    pluginValues    => '*',
+    contextObject   => '*',
 });
 
 use strict;
@@ -112,7 +113,7 @@ use ECPDF::ContextFactory;
 use ECPDF::ComponentManager;
 
 
-our $VERSION = '1.0.9';
+our $VERSION = '1.0.10';
 
 # TODO: Explain this later.
 BEGIN {
@@ -133,6 +134,10 @@ sub classDefinition {
 =head3 Description
 
 Creates L<ECPDF::Context> object. Does not require any additional parameters.
+
+Please, note, that this function always creates a new context object.
+
+If you want to use already existing context object, consider to use a getContext() method.
 
 =head3 Parameters
 
@@ -162,9 +167,57 @@ Creates L<ECPDF::Context> object. Does not require any additional parameters.
 sub newContext {
     my ($pluginObject) = @_;
 
-    return $pluginObject->getContextFactory()->newContext($pluginObject);
+    my $context = $pluginObject->getContextFactory()->newContext($pluginObject);
+    return $context;
 }
-sub util {}
+
+
+=head2 getContext()
+
+=head3 Description
+
+This method returns already created L<ECPDF::Context> object. Does not require any additional parameters.
+
+If this method is being used first time, it creates new context object and returns it. Each next call will return exactly this object.
+
+=head3 Parameters
+
+=over 4
+
+=item None
+
+=back
+
+=head3 Returns
+
+=over 4
+
+=item L<ECPDF::Context>
+
+=back
+
+%%%LANG=perl%%%
+
+    my $context = $pluginObject->getContext();
+
+%%%LANG%%%
+
+=cut
+
+sub getContext {
+    my ($pluginObject) = @_;
+
+    my $context = $pluginObject->getContextObject();
+    if ($context) {
+        return $context;
+    }
+    $context = $pluginObject->getContextFactory()->newContext($pluginObject);
+    $pluginObject->setContextObject($context);
+    return $context;
+}
+
+
+# this function is here to be a placeholder for real pluginInfo function that is being defined by plugin object.
 sub pluginInfo {}
 
 sub runStep {
@@ -190,12 +243,62 @@ sub runStep {
         })
     });
 
+    my $context           = $ecpdf->getContext();
+    my $runtimeParameters = $context->getRuntimeParameters();
+    my $stepResult        = $context->newStepResult();
+
     # if pluginvalues has been passed, it will be added to plugin object.
     if ($pluginInfo->{pluginValues}) {
         $ecpdf->setPluginValues($pluginInfo->{pluginValues});
     }
 
-    return $ecpdf->$function();
+    my $retval = $ecpdf->$function($runtimeParameters, $stepResult);
+    $stepResult->applyIfNotApplied();
+    return $retval;
+}
+
+
+=head2 getPluginProjectName()
+
+=head3 Description
+
+This method returns a complete name of your plugin with version as string.
+
+=head3 Parameters
+
+=over 4
+
+=item None
+
+=back
+
+=head3 Returns
+
+=over 4
+
+=item (String) PluginName-PluginVersion;
+
+=back
+
+%%%LANG=perl%%%
+
+    my $pluginProjectName = $pluginObject->getPluginProjectName();
+
+%%%LANG%%%
+
+=cut
+
+
+sub getPluginProjectName {
+    my ($self) = @_;
+
+    my $pluginProjectName = sprintf(
+        '%s-%s',
+        $self->getPluginName(),
+        $self->getPluginVersion()
+    );
+
+    return $pluginProjectName;
 }
 
 =head1 SEE ALSO
