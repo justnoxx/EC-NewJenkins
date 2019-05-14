@@ -270,66 +270,65 @@ This example demonstrates how it is possible to create CollectReportingData usin
 
 
     sub initialGetRecords {
-    my ($self, $pluginObject, $limit) = @_;
+        my ($self, $pluginObject, $limit) = @_;
 
-    # build records and return them
-    my $records = pluginObject->yourMethodTobuildTheRecords($limit);
-    return $records;
-}
+        # build records and return them
+        my $records = pluginObject->yourMethodTobuildTheRecords($limit);
+        return $records;
+    }
 
 
-sub getRecordsAfter {
-    my ($self, $pluginObject, $metadata) = @_;
+    sub getRecordsAfter {
+        my ($self, $pluginObject, $metadata) = @_;
 
-    # build records using metadata as start point using your functions
-    my $records = pluginObject->yourMethodTobuildTheRecordsAfter($metadata);
-    return $records;
-}
+        # build records using metadata as start point using your functions
+        my $records = pluginObject->yourMethodTobuildTheRecordsAfter($metadata);
+        return $records;
+    }
 
-sub getLastRecord {
-    my ($self, $pluginObject) = @_;
+    sub getLastRecord {
+        my ($self, $pluginObject) = @_;
 
-    my $lastRecord = $pluginObject->yourMethodToGetLastRecord();
-    return $lastRecord;
-}
+        my $lastRecord = $pluginObject->yourMethodToGetLastRecord();
+        return $lastRecord;
+    }
 
-sub buildDataset {
-    my ($self, $pluginObject, $records) = @_;
+    sub buildDataset {
+        my ($self, $pluginObject, $records) = @_;
 
-    my $dataset = $self->newDataset({
-        reportObjectTypes => ['yourReportObjectType'],
-    });
-    for my $row (@$records) {
-        # now, data is a pointer, you need to populate it by yourself using it's methods.
-        my $data = $dataset->newData({
-            reportObjectType => 'yourReportObjectType',
+        my $dataset = $self->newDataset({
+            reportObjectTypes => ['yourReportObjectType'],
         });
-        for my $k (keys %$row) {
-            $data->{values}->{$k} = $row->{$k};
+        for my $row (@$records) {
+            # now, data is a pointer, you need to populate it by yourself using it's methods.
+            my $data = $dataset->newData({
+                reportObjectType => 'yourReportObjectType',
+            });
+            for my $k (keys %$row) {
+                $data->{values}->{$k} = $row->{$k};
+            }
         }
+        return $dataset;
     }
-    return $dataset;
-}
 
-sub buildPayloadset {
-    my ($self, $pluginObject, $dataset) = @_;
+    sub buildPayloadset {
+        my ($self, $pluginObject, $dataset) = @_;
 
-    my $payloadSet = $self->newPayloadset({
-        reportObjectTypes => ['yourReportObjectType'],
-    });
-
-    my $payloads = $payloadSet->getPayloads();
-    my $data = $dataset->getData();
-    for my $row (@$data) {
-        my $values = $row->getValues();
-        push @$payloads, $payloadSet->newPayload({
-            values => $values,
-            reportObjectType => 'build'
+        my $payloadSet = $self->newPayloadset({
+            reportObjectTypes => ['yourReportObjectType'],
         });
-    }
 
-    return $payloadSet;
-}
+        my $data = $dataset->getData();
+        for my $row (@$data) {
+            my $values = $row->getValues();
+            $payloadSet->newPayload({
+                values => $values,
+                reportObjectType => 'yourReportObjectType'
+            });
+        }
+
+        return $payloadSet;
+    }
 
 %%%LANG%%%
 
@@ -520,11 +519,14 @@ sub CollectReportingData {
                 $transformer->transform($r);
             }
         }
-        my $payloadset = $self->buildPayloadset(
-            $pluginObject, $self->buildDataset(
-                $pluginObject, $lastRecord
-            )
-        );
+        my $dataset = $self->buildDataset($pluginObject, $lastRecord);
+        my $payloadset;
+        if ($self->can('buildPayloadset')) {
+            $payloadset = $self->buildPayloadset($pluginObject, $dataset);
+        }
+        else {
+            $payloadset = $self->defaultBuildPayloadset($pluginObject, $dataset);
+        }
         my $lastMetadata = $metadataFactory->newMetadataFromPayload($payloadset->getLastPayload());
         # they are equal, return 1, reported data is actual;
         if ($self->compareMetadata($metadata, $lastMetadata) == 0) {
@@ -562,22 +564,73 @@ sub CollectReportingData {
 
     # 4. Create payloadset.
     # transform script will be applied to each payload object.
-    my $payloads = $self->buildPayloadset($pluginObject, $dataset);
+    my $payloads;
+    if ($self->can('buildPayloadset')) {
+        $payloads = $self->buildPayloadset($pluginObject, $dataset);
+    }
+    else {
+        logDebug("buildPayloadSet function has not been defined, using defaultBuildPayloadset");
+        $payloads = $self->defaultBuildPayloadset($pluginObject, $dataset);
+    }
     $self->prepareAndValidatePayloads($payloads);
 
     # 5. finally report
     my $reportingResult = $payloads->report();
     logDebug("Reporting result: ", Dumper $reportingResult);
+    $stepResult->setJobStepSummary("Payloads sent:");
     for my $reportType (keys %$reportingResult) {
-        $stepResult->setJobStepSummary("Payloads sent:\nPayloads of type $reportType sent: $reportingResult->{$reportType}");
+        $stepResult->setJobStepSummary("Payloads of type $reportType sent: $reportingResult->{$reportType}");
     }
     $stepResult->apply();
     my $newMetadata = $metadataFactory->newMetadataFromPayload($payloads->getLastPayload());
     # 6. Write new metadata.
-    $newMetadata->writeIt();
+    if ($self->isPreview()) {
+        logInfo("Preview mode is enabled, metadata is not going to be written");
+    }
+    else {
+        $newMetadata->writeIt();
+    }
 
     return 1;
 }
+
+
+sub defaultBuildPayloadset {
+    my ($self, $pluginObject, $dataset) = @_;
+
+    my $payloadSet = $self->newPayloadset({
+        reportObjectTypes => $dataset->getReportObjectTypes(),
+    });
+
+    # my $payloads = $payloadSet->getPayloads();
+    my $data = $dataset->getData();
+    for my $row (@$data) {
+        my $values = $row->getValues();
+        my $pl = $payloadSet->newPayload({
+            values => $values,
+            reportObjectType => $row->getReportObjectType()
+        });
+        $self->convertDataToPayloadRecursive($pl, $row);
+    }
+
+    return $payloadSet;
+}
+
+
+sub convertDataToPayloadRecursive {
+    my ($self, $payload, $data) = @_;
+
+    my $dependentData = $data->getDependentData();
+    for my $row (@$dependentData) {
+        my $dependentPayload = $payload->createNewDependentPayload($row->getReportObjectType(), $row->getValues());
+        # my $dependentPayload = $payload->createNewDependentPayload({
+        #     reportObjectType => $row->getReportObjectType(),
+        #     values => $row->getValues()
+        # });
+        $self->convertDataToPayloadRecursive($dependentPayload, $row);
+    }
+}
+
 
 sub prepareAndValidatePayloads {
     my ($self, $payloadSet) = @_;
@@ -666,6 +719,7 @@ sub prepareAndValidateSinglePayload {
     }
 
     for my $dp (@$dependentPayloads) {
+        logInfo("Validating dependent payload...");
         $self->prepareAndValidateSinglePayload($dp, $reportingEngine);
     }
 }

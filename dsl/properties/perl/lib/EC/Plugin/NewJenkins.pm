@@ -27,8 +27,13 @@ sub pluginInfo {
 sub collectReportingData {
     my ($pluginObject, $params, $stepResult) = @_;
     my $context = $pluginObject->getContext();
-
     $ECPDF::Log::LOG_LEVEL = 2;
+    # testing test results
+
+    # my $testResult = $pluginObject->getTestReport('JPetStore', '2', '/testReport');
+    # print Dumper $testResult;
+    # end of testing test results
+
     # my $params = $context->getRuntimeParameters();
 
     my $reporting = ECPDF::ComponentManager->loadComponent('EC::Plugin::NewJenkins::Reporting', {
@@ -37,13 +42,6 @@ sub collectReportingData {
         payloadKeys       => ['buildNumber']
     }, $pluginObject);
     logDebug "Ref of reporting: ", ref $reporting;
-    # my $stepResult = $context->newStepResult();
-    # $stepResult->setJobStepSummary("Payloads Sent Result:");
-    # for my $row (qw/build quality/) {
-    #     $stepResult->setJobStepSummary("$row payloads sent: 100");
-    # }
-    # $stepResult->apply();
-    # $stepResult->setJobStepSummary("Testing auto-apply");
     $reporting->CollectReportingData();
 }
 
@@ -184,6 +182,34 @@ sub getLastBuildNumber {
     return $retval;
 
 }
+
+sub getTestReport {
+    my ($self, $jobName, $buildNumber, $testReportUrl) = @_;
+
+    my $path = "/job/$jobName/$buildNumber";
+    $testReportUrl ||= '/testReport';
+    $path .= $testReportUrl;
+    $path .= '/api/json?depth=2';
+    my $response;
+    my $retval = {};
+    eval {
+        $response = $self->doRestRequest(GET => $path);
+        $response = $response->decoded_content();
+        if ($response =~ m/^Error:\s*?404/) {
+            logInfo(sprintf 'Test report is not available at %s', $testReportUrl);
+            return {};
+        }
+        $retval = decode_json($response);
+        1;
+    };
+    if (%$retval) {
+        # TODO: Improve and add getBaseUrl
+        $retval->{url} = $path;
+    }
+
+    return $retval;
+}
+
 
 
 sub getDateFromJenkinsTimestamp {

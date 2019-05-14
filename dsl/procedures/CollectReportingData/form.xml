@@ -34,6 +34,33 @@
         <type>entry</type>
     </formElement>
     <formElement>
+        <label>Retrive Test Results also:</label>
+        <property>retrieveTestResults</property>
+        <value></value>
+        <documentation>If checked - test data will be also collected</documentation>
+        <required>0</required>
+        <type>checkbox</type>
+        <checkedValue>1</checkedValue>
+        <uncheckedValue>0</uncheckedValue>
+        <initiallyChecked>0</initiallyChecked>
+    </formElement>
+    <formElement>
+        <label>Test report URL:</label>
+        <property>testReportUrl</property>
+        <value>/testReport</value>
+        <documentation>testReportUrl</documentation>
+        <required>0</required>
+        <type>entry</type>
+    </formElement>
+    <formElement>
+        <label>Test Category</label>
+        <property>testCategory</property>
+        <value></value>
+        <documentation>testCategory</documentation>
+        <required>0</required>
+        <type>entry</type>
+    </formElement>
+    <formElement>
         <label>Transform script:</label>
         <property>transformScript</property>
         <value>sub transform {

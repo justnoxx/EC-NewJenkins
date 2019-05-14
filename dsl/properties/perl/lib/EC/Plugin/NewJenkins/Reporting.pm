@@ -78,30 +78,57 @@ sub buildDataset {
             $data->addValue($k => $row->{$k});
             # $data->{values}->{$k} = $row->{$k};
         }
+
+        if ($runtimeParameters->{retrieveTestResults}) {
+            logInfo("Test results retrieval is enabled");
+            my $testReport = $pluginObject->getTestReport(
+                $runtimeParameters->{jobName},
+                $row->{number},
+                $runtimeParameters->{testReportUrl}
+            );
+            if (%$testReport) {
+                logInfo("Got testreport for build number $row->{number}, creating new dependent data");
+                my $dependentData = $data->createNewDependentData('quality');
+
+                logDebug("Test Report: ", $testReport);
+                $dependentData->addValue(projectName => $row->{projectName});
+                $dependentData->addValue(releaseName => $row->{releaseName});
+                $dependentData->addValue(releaseProjectName => $row->{releaseProjectName});
+                $dependentData->addValue(skippedTests => $testReport->{skipCount}    || 0);
+                $dependentData->addValue(successfulTests => $testReport->{passCount} || 0);
+                $dependentData->addValue(failedTests => $testReport->{failCount}     || 0);
+                $dependentData->addValue(timestamp => $row->{endTime});
+
+                $dependentData->addValue(category => $runtimeParameters->{testCategory});
+                $dependentData->addValue(
+                    totalTests => $testReport->{skipCount} + $testReport->{skipCount} + $testReport->{skipCount}
+                );
+            }
+        }
         # my $dataRef = $dataset->getData();
         # unshift @$dataRef, $data;
     }
     return $dataset;
 }
 
-sub buildPayloadset {
-    my ($self, $pluginObject, $dataset) = @_;
+# sub buildPayloadset {
+#     my ($self, $pluginObject, $dataset) = @_;
 
-    my $payloadSet = $self->newPayloadset({
-        reportObjectTypes => ['build'],
-    });
+#     my $payloadSet = $self->newPayloadset({
+#         reportObjectTypes => ['build'],
+#     });
 
-    # my $payloads = $payloadSet->getPayloads();
-    my $data = $dataset->getData();
-    for my $row (@$data) {
-        my $values = $row->getValues();
-        my $pl = $payloadSet->newPayload({
-            values => $values,
-            reportObjectType => 'build'
-        });
-    }
+#     # my $payloads = $payloadSet->getPayloads();
+#     my $data = $dataset->getData();
+#     for my $row (@$data) {
+#         my $values = $row->getValues();
+#         my $pl = $payloadSet->newPayload({
+#             values => $values,
+#             reportObjectType => 'build'
+#         });
+#     }
 
-    return $payloadSet;
-}
+#     return $payloadSet;
+# }
 
 1;
