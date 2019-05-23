@@ -296,9 +296,7 @@ This example demonstrates how it is possible to create CollectReportingData usin
     sub buildDataset {
         my ($self, $pluginObject, $records) = @_;
 
-        my $dataset = $self->newDataset({
-            reportObjectTypes => ['yourReportObjectType'],
-        });
+        my $dataset = $self->newDataset(['yourReportObjectType']);
         for my $row (@$records) {
             # now, data is a pointer, you need to populate it by yourself using it's methods.
             my $data = $dataset->newData({
@@ -311,25 +309,6 @@ This example demonstrates how it is possible to create CollectReportingData usin
         return $dataset;
     }
 
-    sub buildPayloadset {
-        my ($self, $pluginObject, $dataset) = @_;
-
-        my $payloadSet = $self->newPayloadset({
-            reportObjectTypes => ['yourReportObjectType'],
-        });
-
-        my $data = $dataset->getData();
-        for my $row (@$data) {
-            my $values = $row->getValues();
-            $payloadSet->newPayload({
-                values => $values,
-                reportObjectType => 'yourReportObjectType'
-            });
-        }
-
-        return $payloadSet;
-    }
-
 %%%LANG%%%
 
 =head1 METHODS
@@ -340,18 +319,19 @@ package ECPDF::Component::EF::Reporting;
 use strict;
 use warnings;
 use base qw/ECPDF::Component::EF/;
+use ECPDF::Types;
 
 our $PREVIEW_MODE_ENABLED = 0;
 
 __PACKAGE__->defineClass({
-    metadataUniqueKey     => 'str',
+    metadataUniqueKey     => ECPDF::Types::Scalar(),
     # an array reference of strings for report object types, like ['build', 'quality'];
-    reportObjectTypes     => '*',
-    initialRetrievalCount => 'str',
-    pluginName            => 'str',
-    pluginObject          => '*',
-    transformer           => '*',
-    payloadKeys           => '*'
+    reportObjectTypes     => ECPDF::Types::ArrayrefOf(ECPDF::Types::Scalar()),
+    initialRetrievalCount => ECPDF::Types::Scalar(),
+    pluginName            => ECPDF::Types::Scalar(),
+    pluginObject          => ECPDF::Types::Any(),
+    transformer           => ECPDF::Types::Reference('ECPDF::Component::EF::Reporting::Transformer'),
+    payloadKeys           => ECPDF::Types::ArrayrefOf(ECPDF::Types::Scalar()),
 });
 
 use Data::Dumper;
@@ -598,9 +578,7 @@ sub CollectReportingData {
 sub defaultBuildPayloadset {
     my ($self, $pluginObject, $dataset) = @_;
 
-    my $payloadSet = $self->newPayloadset({
-        reportObjectTypes => $dataset->getReportObjectTypes(),
-    });
+    my $payloadSet = $self->newPayloadset($dataset->getReportObjectTypes());
 
     # my $payloads = $payloadSet->getPayloads();
     my $data = $dataset->getData();
@@ -623,10 +601,6 @@ sub convertDataToPayloadRecursive {
     my $dependentData = $data->getDependentData();
     for my $row (@$dependentData) {
         my $dependentPayload = $payload->createNewDependentPayload($row->getReportObjectType(), $row->getValues());
-        # my $dependentPayload = $payload->createNewDependentPayload({
-        #     reportObjectType => $row->getReportObjectType(),
-        #     values => $row->getValues()
-        # });
         $self->convertDataToPayloadRecursive($dependentPayload, $row);
     }
 }
@@ -750,7 +724,7 @@ sub validateAndConvertRow {
     return $value;
 }
 
-=head2 newDataSet($reportObjectTypes, $records);
+=head2 newDataset($reportObjectTypes, $records);
 
 =head3 Description
 
@@ -782,9 +756,7 @@ Throws a missing parameters exception.
 
 %%%LANG=perl%%%
 
-    my $dataset = $reporting->newDataset({
-        reportObjectTypes => ['build']
-    });
+    my $dataset = $reporting->newDataset(['build']);
 
 %%%LANG%%%
 
@@ -807,7 +779,7 @@ sub newDataset {
 };
 
 
-=head2 newDataSet($reportObjectTypes, $payloads);
+=head2 newPayloadset($reportObjectTypes, $payloads);
 
 =head3 Description
 
@@ -817,7 +789,7 @@ Creates a new L<ECPDF::Component::EF::Reporting::Payloadset> object from records
 
 =over 4
 
-=item (Required)(ARRAY ref of scalars) A report object types to be used for dataset creation.
+=item (Required)(ARRAY ref of scalars) A report object types to be used for payload creation.
 
 =item (Optional)(ARRAY ref or records) A list of L<ECPDF::Component::EF::Reporting::Payload> objects.
 
@@ -839,9 +811,7 @@ Throws a missing parameters exception.
 
 %%%LANG=perl%%%
 
-    my $dataset = $reporting->newPayloadset({
-        reportObjectTypes => ['build']
-    });
+    my $payloadset = $reporting->newPayloadset(['build']);
 
 %%%LANG%%%
 

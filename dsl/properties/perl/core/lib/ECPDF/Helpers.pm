@@ -1,3 +1,61 @@
+=head1 NAME
+
+ECPDF::Helpers
+
+=head1 AUTHOR
+
+CloudBees
+
+=head1 DESCRIPTION
+
+This module provides various static helper functions.
+
+To use them one should explicitly import them.
+
+=head1 METHODS
+
+=head2 trim
+
+=head3 Usage
+
+%%%LANG=perl%%%
+
+    $str = trim(' hello world ');
+
+%%%LANG%%%
+
+=head2 isWin
+
+=head3 Description
+
+Returns true if we're running on windows system.
+
+=head2 genRandomNumbers
+
+=head3 Description
+
+Generates random numbers.
+
+=head2 bailOut
+
+=head3 Description
+
+Immediately aborts current execution and exits with exit code 1.
+
+This exception can't be handled or catched.
+
+=head3 Usage
+
+%%%LANG=perl%%%
+
+    bailOut("Something is very wrong");
+
+%%%LANG%%%
+
+=head2 inArray
+
+=cut
+
 package ECPDF::Helpers;
 use base qw/Exporter/;
 

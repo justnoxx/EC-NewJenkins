@@ -1,11 +1,12 @@
 package ECPDF::Error;
 use base qw/ECPDF::BaseClass2/;
+use ECPDF::Types;
 
 __PACKAGE__->defineClass({
-    errorType     => 'str',
-    errorGroup    => 'str',
-    errorMessage  => 'str',
-    erroCode      => 'str'
+    errorType     => ECPDF::Types::Scalar(),
+    errorGroup    => ECPDF::Types::Scalar(),
+    errorMessage  => ECPDF::Types::Scalar(),
+    erroCode      => ECPDF::Types::Scalar(),
 });
 
 use strict;
@@ -83,10 +84,10 @@ sub buildErrorMessage {
 
     my $retval = "";
     if ($code) {
-        $retval = "[$code: $type : $runtime]: $message";
+        $retval = "[$code: $type : $group]: $message";
     }
     else {
-        $retval = "[$type : $runtime]: $message";
+        $retval = "[$type : $group]: $message";
     }
 
     return $retval;

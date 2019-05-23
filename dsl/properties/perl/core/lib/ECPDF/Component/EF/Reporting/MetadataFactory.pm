@@ -1,11 +1,13 @@
 package ECPDF::Component::EF::Reporting::MetadataFactory;
 use base qw/ECPDF::BaseClass2/;
+use ECPDF::Types;
+
 __PACKAGE__->defineClass({
-    pluginObject      => '*',
-    reportObjectTypes => '*',
-    propertyPath      => '*',
-    payloadKeys       => '*',
-    uniqueKey         => '*'
+    pluginObject      => ECPDF::Types::Any(),
+    reportObjectTypes => ECPDF::Types::ArrayrefOf(ECPDF::Types::Scalar()),
+    propertyPath      => ECPDF::Types::Scalar(),
+    payloadKeys       => ECPDF::Types::ArrayrefOf(ECPDF::Types::Scalar()),
+    uniqueKey         => ECPDF::Types::Scalar(),
 });
 
 use strict;

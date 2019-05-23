@@ -1,9 +1,11 @@
 package ECPDF::Component::EF::Reporting::Transformer;
 use base qw/ECPDF::BaseClass2/;
+use ECPDF::Types;
+
 __PACKAGE__->defineClass({
-    pluginObject    => '*',
-    transformScript => 'str',
-    transformer     => '*',
+    pluginObject    => ECPDF::Types::Any(),
+    transformScript => ECPDF::Types::Scalar(),
+    transformer     => ECPDF::Types::Reference('EC::Mapper::Transformer'),
 });
 
 

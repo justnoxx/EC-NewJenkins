@@ -1,9 +1,11 @@
 package ECPDF::StepResult::Action;
 use base qw/ECPDF::BaseClass2/;
+use ECPDF::Types;
+
 __PACKAGE__->defineClass({
-    actionType => 'str',
-    entityName => 'str',
-    entityValue => 'str'
+    actionType  => ECPDF::Types::Scalar(),
+    entityName  => ECPDF::Types::Scalar(),
+    entityValue => ECPDF::Types::Scalar(),
 });
 
 use strict;

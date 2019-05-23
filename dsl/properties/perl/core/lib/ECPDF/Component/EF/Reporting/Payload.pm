@@ -125,10 +125,12 @@ This method may be used when there is more than one report object type should be
 
 package ECPDF::Component::EF::Reporting::Payload;
 use base qw/ECPDF::BaseClass2/;
+use ECPDF::Types;
+
 __PACKAGE__->defineClass({
-    reportObjectType => 'str',
-    values => '*',
-    dependentPayloads => '*',
+    reportObjectType  => ECPDF::Types::Scalar(),
+    values            => ECPDF::Types::Reference('HASH'),
+    dependentPayloads => ECPDF::Types::ArrayrefOf(ECPDF::Types::Reference('ECPDF::Component::EF::Reporting::Payload')),
 });
 
 use strict;

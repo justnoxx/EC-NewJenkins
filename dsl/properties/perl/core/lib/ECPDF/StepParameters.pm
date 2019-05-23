@@ -20,10 +20,11 @@ To get an ECPDF::StepParameters object you need to use newStepParameters() metho
 
 package ECPDF::StepParameters;
 use base qw/ECPDF::BaseClass2/;
+use ECPDF::Types;
 
 __PACKAGE__->defineClass({
-    parametersList => '*',
-    parameters => '*'
+    parametersList => ECPDF::Types::ArrayrefOf(ECPDF::Types::Scalar()),
+    parameters => ECPDF::Types::Reference('HASH'),
 });
 
 use strict;

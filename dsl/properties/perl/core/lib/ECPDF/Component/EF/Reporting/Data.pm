@@ -87,10 +87,12 @@ Returns a values for the current data.
 
 package ECPDF::Component::EF::Reporting::Data;
 use base qw/ECPDF::BaseClass2/;
+use ECPDF::Types;
+
 __PACKAGE__->defineClass({
-    reportObjectType => 'str',
-    values => '*',
-    dependentData => '*',
+    reportObjectType => ECPDF::Types::Scalar(),
+    values           => ECPDF::Types::Reference('HASH'),
+    dependentData    => ECPDF::Types::ArrayrefOf(ECPDF::Types::Reference('ECPDF::Component::EF::Reporting::Data')),
 });
 
 use strict;
@@ -150,7 +152,7 @@ Adds or updates a value for the current data object.
 
 =over 4
 
-=item Reference to the current ECDPF::Component::EF::Reporting::Data
+=item Reference to the current ECPDF::Component::EF::Reporting::Data
 
 =back
 
@@ -203,7 +205,7 @@ Adds a new value to the data values, falls with exceptions if provided key alrea
 
 =over 4
 
-=item Reference to the current ECDPF::Component::EF::Reporting::Data
+=item Reference to the current ECPDF::Component::EF::Reporting::Data
 
 =back
 
@@ -259,7 +261,7 @@ Updates a value for current data values. Fatal error if value does not exist.
 
 =over 4
 
-=item Reference to the current ECDPF::Component::EF::Reporting::Data
+=item Reference to the current ECPDF::Component::EF::Reporting::Data
 
 =back
 

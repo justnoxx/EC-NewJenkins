@@ -3,33 +3,10 @@ use strict;
 use warnings;
 use Data::Dumper;
 use Carp;
+
 sub defineClass {
     my ($class, $definitions) = @_;
 
-    # my $constructorCode = sprintf q|
-    #     *{%s::new} = sub {
-    #         my ($class, $opts) = @_;
-    #         for my $k (keys %%{$opts}) {
-    #             my $getter = ucfirst $k;
-    #             $getter = "get$getter";
-    #             if (!$definitions->{$k} && !$class->can($getter)) {
-    #                 croak "Unknown field $k\n";
-    #             }
-    #         }
-    #         bless $opts, $class;
-    #         return $opts;
-    #     };
-    # |, $class;
-
-    # if (!$class->can('new')) {
-    #     eval $constructorCode or do {
-    #         croak "Error during constructor code creation: $!\n";
-    #     };
-    # }
-    # else {
-    #     print "$class already has a new method\n";
-    # }
-    # # print "Constructor code: $constructorCode\n";
     for my $k (keys %$definitions) {
         my $field = ucfirst $k;
         my $getter = "get$field";
@@ -37,11 +14,11 @@ sub defineClass {
         my $code = sprintf q|
         *{%s::%s} = sub {
             my ($self) = @_;
-            return __get($self, $k);
+            return __get($self, $definitions, $k);
         };
         *{%s::%s} = sub {
             my ($self, $value) = @_;
-            return __set($self, $k, $value);
+            return __set($self, $definitions, $k, $value);
         };
 |, $class, $getter, $class, $setter;
         # print "Code: $code\n";
@@ -54,7 +31,7 @@ sub defineClass {
 
 
 sub __get {
-    my ($self, $field) = @_;
+    my ($self, $definitions, $field) = @_;
     if (defined $self->{$field}) {
         return $self->{$field};
     }
@@ -62,7 +39,28 @@ sub __get {
 }
 
 sub __set {
-    my ($self, $field, $value) = @_;
+    my ($self, $definitions, $field, $value) = @_;
+
+    if (ref $definitions->{$field}) {
+        my $matcher = $definitions->{$field};
+        if (!$matcher->match($value)) {
+            # TODO: Improve this error message.
+            if ($matcher->can('describe')) {
+                my $msg = sprintf(
+                    'Value for %s->{%s} should be: %s, but got: %s',
+                    ref $self, $field, $matcher->describe(),
+                    ref $value ? Dumper($value) : $value
+                );
+                croak $msg;
+            }
+            else {
+                croak "Value for $self : $field should be a " . Dumper($matcher) . ", got: " . Dumper($value) . "\n";
+            }
+        }
+    }
+    else {
+        print "[DEVWARNING] $field from " . ref $self . " does not have proper definition.\n";
+    }
     $self->{$field} = $value;
     return $self;
 }

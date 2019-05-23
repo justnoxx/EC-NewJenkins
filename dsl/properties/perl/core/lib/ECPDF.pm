@@ -91,15 +91,16 @@ Example of a plugin main class:
 =cut
 
 use base qw/ECPDF::BaseClass2/;
+use ECPDF::Types;
 
 __PACKAGE__->defineClass({
-    pluginName      => 'str',
-    pluginVersion   => 'str',
-    configFields    => '*',
-    configLocations => '*',
-    contextFactory  => '*',
-    pluginValues    => '*',
-    contextObject   => '*',
+    pluginName      => ECPDF::Types::Scalar(),
+    pluginVersion   => ECPDF::Types::Scalar(),
+    configFields    => ECPDF::Types::ArrayrefOf(ECPDF::Types::Scalar()),
+    configLocations => ECPDF::Types::ArrayrefOf(ECPDF::Types::Scalar()),,
+    contextFactory  => ECPDF::Types::Reference('ECPDF::ContextFactory'),
+    pluginValues    => ECPDF::Types::Reference('HASH'),
+    contextObject   => ECPDF::Types::Reference('ECPDF::Context'),
 });
 
 use strict;
@@ -113,7 +114,7 @@ use ECPDF::ContextFactory;
 use ECPDF::ComponentManager;
 
 
-our $VERSION = '1.0.10';
+our $VERSION = '1.0.12';
 
 # TODO: Explain this later.
 BEGIN {

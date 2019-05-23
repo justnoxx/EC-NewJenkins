@@ -84,10 +84,11 @@ package ECPDF::Component::CLI::ExecutionResult;
 use strict;
 use warnings;
 use base qw/ECPDF::BaseClass2/;
+use ECPDF::Types;
 __PACKAGE__->defineClass({
-    stdout => 'str',
-    stderr => 'str',
-    code   => 'str'
+    stdout => ECPDF::Types::Scalar(),
+    stderr => ECPDF::Types::Scalar(),
+    code   => ECPDF::Types::Scalar(),
 });
 use Carp;
 

@@ -20,16 +20,16 @@ This class allows user to access procedure parameters, config values and define 
 
 
 use base qw/ECPDF::BaseClass2/;
-
+use ECPDF::Types;
 __PACKAGE__->defineClass({
-    procedureName           => 'str',
-    stepName                => 'str',
-    runContext              => 'str',
-    pluginObject            => '*',
-    ec                      => 'ElectricCommander',
-    currentStepParameters   => 'ECPDF::StepParameters',
-    currentStepConfigValues => 'ECPDF::Config',
-    currentProjectName      => 'str',
+    procedureName           => ECPDF::Types::Scalar(),
+    stepName                => ECPDF::Types::Scalar(),
+    runContext              => ECPDF::Types::Scalar(),
+    pluginObject            => ECPDF::Types::Any(),
+    ec                      => ECPDF::Types::Reference('ElectricCommander'),
+    currentStepParameters   => ECPDF::Types::Reference('ECPDF::StepParameters'),
+    currentStepConfigValues => ECPDF::Types::Reference('ECPDF::Config'),
+    currentProjectName      => ECPDF::Types::Scalar(),
 });
 
 use strict;

@@ -17,9 +17,11 @@ A context factory that generates the L<ECPDF::Context> object.
 
 package ECPDF::ContextFactory;
 use base qw/ECPDF::BaseClass2/;
+use ECPDF::Types;
+
 __PACKAGE__->defineClass({
-    procedureName => 'str',
-    stepName      => 'str'
+    procedureName => ECPDF::Types::Scalar(),
+    stepName      => ECPDF::Types::Scalar(),
 });
 
 use strict;

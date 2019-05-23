@@ -169,11 +169,13 @@ Returns a name for the current credential.
 
 package ECPDF::Credential;
 use base qw/ECPDF::BaseClass2/;
+use ECPDF::Types;
+
 __PACKAGE__->defineClass({
-    credentialName => 'str',
-    credentialType => 'str',
-    userName => 'str',
-    secretValue => 'str',
+    credentialName => ECPDF::Types::Scalar(),
+    credentialType => ECPDF::Types::Scalar(),
+    userName       => ECPDF::Types::Scalar(),
+    secretValue    => ECPDF::Types::Scalar(),
 });
 
 use strict;

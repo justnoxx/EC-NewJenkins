@@ -1,8 +1,9 @@
 package ECPDF::Component::EF;
 use base qw/ECPDF::Component/;
+use ECPDF::Types;
 
 __PACKAGE__->defineClass({
-    pluginObject => '*'
+    pluginObject => ECPDF::Types::Any(),
 });
 
 use strict;

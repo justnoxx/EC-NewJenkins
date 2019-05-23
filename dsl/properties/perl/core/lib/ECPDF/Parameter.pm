@@ -173,9 +173,11 @@ Sets a name for the current parameter.
 
 package ECPDF::Parameter;
 use base qw/ECPDF::BaseClass2/;
+use ECPDF::Types;
+
 __PACKAGE__->defineClass({
-    name => 'str',
-    value => 'str'
+    name  => ECPDF::Types::Scalar(),
+    value => ECPDF::Types::Scalar(),
 });
 use overload
     '""' => 'toString';

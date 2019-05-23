@@ -16,10 +16,11 @@ This class represents a system command that is being used by L<ECPDF::Component:
 
 package ECPDF::Component::CLI::Command;
 use base qw/ECPDF::BaseClass2/;
+use ECPDF::Types;
 
 __PACKAGE__->defineClass({
-    shell => 'str',
-    args => 'str'
+    shell => ECPDF::Types::Scalar(),
+    args  => ECPDF::Types::Scalar(),
 });
 
 use strict;

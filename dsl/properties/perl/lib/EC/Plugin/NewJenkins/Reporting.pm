@@ -52,9 +52,7 @@ sub getLastRecord {
 sub buildDataset {
     my ($self, $pluginObject, $records) = @_;
 
-    my $dataset = $self->newDataset({
-        reportObjectTypes => ['build'],
-    });
+    my $dataset = $self->newDataset(['build']);
     my $runtimeParameters = $pluginObject->getContext()->getRuntimeParameters();
     @$records = reverse @$records;
     for my $row (@$records) {

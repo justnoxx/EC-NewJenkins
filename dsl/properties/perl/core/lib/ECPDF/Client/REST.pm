@@ -44,10 +44,12 @@ some components may be applied automatically to ECPDF::Client::REST object, like
 
 package ECPDF::Client::REST;
 use base qw/ECPDF::BaseClass2/;
+use ECPDF::Types;
+
 __PACKAGE__->defineClass({
-    ua    => 'LWP::UserAgent',
-    proxy => '*',
-    oauth => '*'
+    ua    => ECPDF::Types::Reference('LWP::UserAgent'),
+    proxy => ECPDF::Types::Reference('HASH'),
+    oauth => ECPDF::Types::Reference('HASH'),
 });
 
 use ECPDF::ComponentManager;

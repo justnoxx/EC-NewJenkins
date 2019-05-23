@@ -86,9 +86,10 @@ Currently there are 3 components that are going with L<ECPDF>:
 
 package ECPDF::Component;
 use base qw/ECPDF::BaseClass2/;
+use ECPDF::Types;
 
 __PACKAGE__->defineClass({
-        componentInitParams => '*'
+        componentInitParams => ECPDF::Types::Reference('HASH')
 });
 
 use strict;

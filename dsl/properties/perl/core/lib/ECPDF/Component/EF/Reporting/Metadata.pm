@@ -79,13 +79,14 @@ Returns property path where metadata is stored or is to be stored.
 
 package ECPDF::Component::EF::Reporting::Metadata;
 use base qw/ECPDF::BaseClass2/;
+use ECPDF::Types;
 
 __PACKAGE__->defineClass({
-    reportObjectTypes => '*',
-    uniqueKey         => '*',
-    propertyPath      => '*',
-    value             => '*',
-    pluginObject      => '*'
+    reportObjectTypes => ECPDF::Types::ArrayrefOf(ECPDF::Types::Scalar()),
+    uniqueKey         => ECPDF::Types::Scalar(),
+    propertyPath      => ECPDF::Types::Scalar(),
+    value             => ECPDF::Types::Reference('HASH'),
+    pluginObject      => ECPDF::Types::Any()
 });
 
 use strict;

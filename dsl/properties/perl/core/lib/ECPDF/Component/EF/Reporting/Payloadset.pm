@@ -143,11 +143,12 @@ A hash reference with following fields
 
 package ECPDF::Component::EF::Reporting::Payloadset;
 use base qw/ECPDF::BaseClass2/;
+use ECPDF::Types;
 
 __PACKAGE__->defineClass({
-    ec                => 'ElectricCommander',
-    reportObjectTypes => '*',
-    payloads          => '*'
+    ec                => ECPDF::Types::Reference('ElectricCommander'),
+    reportObjectTypes => ECPDF::Types::ArrayrefOf(ECPDF::Types::Scalar()),
+    payloads          => ECPDF::Types::ArrayrefOf(ECPDF::Types::Reference('ECPDF::Component::EF::Reporting::Payload'))
 });
 
 use strict;

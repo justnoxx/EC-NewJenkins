@@ -1,7 +1,9 @@
 package ECPDF::Component::EF::Reporting::Engine;
 use base qw/ECPDF::BaseClass2/;
+use ECPDF::Types;
+
 __PACKAGE__->defineClass({
-    ec => 'ElectricCommander'
+    ec => ECPDF::Types::Reference('ElectricCommander')
 });
 
 use strict;

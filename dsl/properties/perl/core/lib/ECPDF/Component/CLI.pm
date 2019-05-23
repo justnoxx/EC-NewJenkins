@@ -54,9 +54,9 @@ package ECPDF::Component::CLI;
 use base qw/ECPDF::BaseClass2/;
 
 ECPDF::Component::CLI->defineClass({
-    workingDirectory    => 'str',
-    resultsDirectory    => 'str',
-    componentInitParams => '*',
+    workingDirectory    => ECPDF::Types::Scalar(),
+    resultsDirectory    => ECPDF::Types::Scalar(),
+    componentInitParams => ECPDF::Types::Reference('HASH'),
 });
 
 use strict;

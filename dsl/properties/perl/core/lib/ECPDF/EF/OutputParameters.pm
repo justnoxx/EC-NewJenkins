@@ -1,8 +1,8 @@
 package ECPDF::EF::OutputParameters;
 use base qw/ECPDF::BaseClass2/;
-
+use ECPDF::Types;
 __PACKAGE__->defineClass({
-    ec => ElectricCommander
+    ec => ECPDF::Types::Reference('ElectricCommander')
 });
 
 use strict;

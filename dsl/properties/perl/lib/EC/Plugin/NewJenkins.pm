@@ -27,6 +27,10 @@ sub pluginInfo {
 sub collectReportingData {
     my ($pluginObject, $params, $stepResult) = @_;
     my $context = $pluginObject->getContext();
+
+    $stepResult->setOutcomeProperty('/myJob/property', 1);
+    $stepResult->apply();
+    exit 0;
     $ECPDF::Log::LOG_LEVEL = 2;
     # testing test results
 

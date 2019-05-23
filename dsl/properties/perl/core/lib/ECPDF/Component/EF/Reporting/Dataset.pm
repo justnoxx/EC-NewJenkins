@@ -92,10 +92,11 @@ Returns an ARRAY ref with data objects for current dataset.
 
 package ECPDF::Component::EF::Reporting::Dataset;
 use base qw/ECPDF::BaseClass2/;
+use ECPDF::Types;
 
 __PACKAGE__->defineClass({
-    reportObjectTypes => '*',
-    data              => '*',
+    reportObjectTypes => ECPDF::Types::ArrayrefOf(ECPDF::Types::Scalar()),
+    data              => ECPDF::Types::ArrayrefOf(ECPDF::Types::Reference('ECPDF::Component::EF::Reporting::Data')),
 });
 
 use strict;

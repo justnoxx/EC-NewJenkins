@@ -24,7 +24,7 @@ So, it is only possible to access it from current object.
 
 =item B<Global>
 
-This is default strategy, component is being loaded for whole execution context and could be accessed from any ECDPF::ComponentManager object.
+This is default strategy, component is being loaded for whole execution context and could be accessed from any ECPDF::ComponentManager object.
 
 =back
 
